@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111214"><title>Про.Кол — Админка</title>
+<script src="config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark;--bg:#101114;--panel:#1a1c21;--line:#34363d;--txt:#f5f5f5;--muted:#aeb0b7;--orange:#ff791f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:11px 15px;font-weight:700}button:disabled{opacity:.5;cursor:wait}input{border:1px solid #454750;border-radius:10px;padding:11px 12px;background:#121317;color:white;min-width:0}a{color:#ffae75}.wrap{max-width:1250px;margin:auto;padding:20px}.hidden{display:none!important}.head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.logo{font-size:26px;font-weight:900}.logo b{color:var(--orange)}.muted{color:var(--muted)}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;margin:16px 0}.primary{background:var(--orange);color:#16110d}.secondary{background:#34363c;color:white}.danger{background:#6b3030;color:white}.tools{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.tools input{max-width:240px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}.stat{padding:18px;background:#202228;border:1px solid var(--line);border-radius:15px}.stat strong{display:block;font-size:29px}.stat span{color:var(--muted);font-size:13px}.sectiontitle{margin:0 0 12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.slot{border:1px solid #3c3e45;border-radius:13px;padding:12px;margin:9px 0;background:#202228}.slothead{display:flex;justify-content:space-between;align-items:center;gap:8px}.slothead strong{font-size:18px}.pill{font-size:12px;border-radius:30px;padding:4px 9px;background:#304238;color:#b7f3c7}.pill.full{background:#57302c;color:#ffcbbe}.booking{border:1px solid #3c3e45;border-radius:12px;padding:14px;margin:10px 0;background:#22242a;overflow-wrap:anywhere}.booking h3{margin:0 0 5px;font-size:16px}.booking p{margin:5px 0;color:#d1d2d6}.badge{display:inline-block;border-radius:20px;padding:3px 9px;background:#4b3c22;color:#ffdb92;font-size:12px}.badge.confirmed{background:#244736;color:#c0f3d2}.badge.cancelled{background:#522b2b;color:#ffcccc}.badge.completed{background:#344257;color:#cbdcff}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1;min-width:110px}.empty{color:#aeb0b7;font-size:13px;padding:8px 0}.login{max-width:430px;margin:10vh auto}.login input,.login button{width:100%;margin-top:12px}.note{min-height:20px;white-space:pre-wrap}.divider{border-top:1px solid var(--line);margin:18px 0}.tabs{display:flex;gap:8px;margin:12px 0}.tabs button[aria-pressed=true]{background:var(--orange);color:#151515}.tabs button[aria-pressed=false]{background:#303239;color:#fff}.mobile-only{display:none}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:550px){.wrap{padding:12px}.card{padding:15px}.tools input,.tools button{max-width:none;flex:1}.tools label{width:100%}.head .tools{width:100%}.head .tools button{flex:1}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:24px}.slot{padding:10px}.actions button{min-width:100px}.mobile-only{display:block}}
+</style></head><body>
+<main class="wrap">
+<header class="head"><div><div class="logo">Про<b>.</b>Кол</div><div class="muted">Управление записями · время Ростова-на-Дону</div></div><div class="tools hidden" id="headerActions"><button class="secondary" id="refreshBtn">↻ Обновить</button><button class="danger" id="logoutBtn">Выйти</button></div></header>
+<section id="loginPanel" class="card login"><h2>Вход для сотрудников</h2><form id="loginForm"><input id="email" type="email" autocomplete="username" placeholder="Электронная почта" required><input id="password" type="password" autocomplete="current-password" placeholder="Пароль" required><button class="primary" id="loginBtn" disabled>Подключаемся…</button></form><p id="loginMessage" class="muted note" role="status"></p></section>
+<div id="adminPanel" class="hidden">
+<div class="stats" id="stats"><div class="stat"><strong id="totalStat">—</strong><span>Записей на дату</span></div><div class="stat"><strong id="pendingStat">—</strong><span>Ожидают</span></div><div class="stat"><strong id="confirmedStat">—</strong><span>Подтверждены</span></div><div class="stat"><strong id="freeStat">—</strong><span>Свободных мест</span></div></div>
+<section class="card"><div class="tools"><label for="filterDate">Дата записи</label><input id="filterDate" type="date"><button id="todayBtn" class="secondary">Сегодня</button><button id="allBtn" class="secondary">Все записи</button><input id="searchInput" type="search" placeholder="Поиск: имя, телефон, услуга" aria-label="Поиск по записям"></div><p id="message" class="muted note" role="status"></p></section>
+<div class="tabs"><button id="scheduleTab" aria-pressed="true">📅 Расписание</button><button id="listTab" aria-pressed="false">📋 Список</button></div>
+<div id="scheduleView" class="grid"><section class="card"><h2 class="sectiontitle">Пост 1</h2><div id="post1"></div></section><section class="card"><h2 class="sectiontitle">Пост 2</h2><div id="post2"></div></section></div>
+<section id="listView" class="card hidden"><h2 class="sectiontitle">Все заявки <span id="listCount" class="muted"></span></h2><div id="bookingsList"></div></section>
+<p class="muted">Посты отображаются условно: конкретный пост за клиентом в базе не закреплён. Для ручной записи и переноса потребуется отдельная проверка ограничений на сервере.</p>
+</div></main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const statuses={pending:'Ожидает подтверждения',confirmed:'Подтверждена',cancelled:'Отменена',completed:'Выполнена'};
+const active=new Set(['pending','confirmed']);
+const TIME_ZONE='Europe/Moscow';
+const today=()=>{const p=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:TIME_ZONE,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(x=>[x.type,x.value]));return `${p.year}-${p.month}-${p.day}`};
+let client=null,allBookings=[],loadId=0,view='schedule',authorized=false;
+function note(s){$('message').textContent=s}
+async function setup(){
+ const c=window.PROKOL_CONFIG;
+ if(!c?.supabaseUrl||!c?.supabaseKey)throw Error('Не загружен config.js.');
+ if(!window.supabase){
+   const script=document.createElement('script');
+   script.src='https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js';
+   await new Promise((resolve,reject)=>{script.onload=resolve;script.onerror=()=>reject(Error('Библиотека Supabase не загрузилась ни с одного CDN.'));document.head.append(script)});
+ }
+ if(!window.supabase?.createClient)throw Error('Библиотека Supabase недоступна.');
+ client=window.supabase.createClient(c.supabaseUrl,c.supabaseKey);
+}
+function showAuth(ok){authorized=ok;$('loginPanel').classList.toggle('hidden',ok);$('adminPanel').classList.toggle('hidden',!ok);$('headerActions').classList.toggle('hidden',!ok);if(!ok){allBookings=[];$('bookingsList').replaceChildren();$('post1').replaceChildren();$('post2').replaceChildren()}}
+function time5(b){return String(b.requested_time||'').slice(0,5)}
+function make(tag,cls,txt){const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x}
+function card(b){const el=make('article','booking');const title=make('h3','',`${time5(b)} · ${b.name||'Без имени'}`);el.append(title);const badge=make('span','badge '+(b.status||''),statuses[b.status]||b.status||'Без статуса');el.append(badge);
+const details=[['Услуга',b.service],['Размер',b.wheel_size],['Дата',b.requested_date],['Комментарий',b.comment]];for(const [label,value] of details){if(value)el.append(make('p','',`${label}: ${value}`))}
+if(b.phone){const p=make('p');const a=make('a','',`📞 ${b.phone}`);a.href='tel:'+String(b.phone).replace(/[^\d+]/g,'');p.append(a);el.append(p)}
+const actions=make('div','actions');const add=(text,status,cls)=>{const btn=make('button',cls,text);btn.addEventListener('click',()=>updateStatus(b,status,btn));actions.append(btn)};
+if(b.status==='pending'){add('✓ Подтвердить','confirmed','primary');add('Отменить','cancelled','danger')}
+if(b.status==='confirmed'){add('✓ Выполнена','completed','primary');add('Отменить','cancelled','danger')}
+if(actions.children.length)el.append(actions);return el}
+async function updateStatus(b,status,btn){if(!authorized)return;if(status==='cancelled'&&!confirm(`Отменить запись ${b.name||''} на ${b.requested_date} в ${time5(b)}?`))return;btn.disabled=true;try{const {data,error}=await client.from('bookings').update({status,updated_at:new Date().toISOString()}).eq('id',b.id).eq('status',b.status).select('id');if(error)throw error;if(!data?.length)throw Error('Запись уже была изменена другим сотрудником.');await loadBookings()}catch(e){console.error(e);note('Не удалось изменить запись. Обновите список и повторите попытку.');btn.disabled=false}}
+function filtered(){const q=$('searchInput').value.trim().toLocaleLowerCase('ru');return allBookings.filter(b=>!q||[b.name,b.phone,b.service,b.comment].some(v=>String(v||'').toLocaleLowerCase('ru').includes(q)))}
+function render(){const data=filtered();const day=$('filterDate').value;const activeDay=allBookings.filter(b=>active.has(b.status));$('totalStat').textContent=allBookings.length;$('pendingStat').textContent=allBookings.filter(b=>b.status==='pending').length;$('confirmedStat').textContent=allBookings.filter(b=>b.status==='confirmed').length;$('freeStat').textContent=day?Math.max(0,24-activeDay.length):'—';
+$('bookingsList').replaceChildren();$('listCount').textContent=`(${data.length})`;if(!data.length)$('bookingsList').append(make('p','empty','Записей не найдено.'));else data.forEach(b=>$('bookingsList').append(card(b)));
+for(const id of ['post1','post2'])$(id).replaceChildren();
+if(!day){$('post1').append(make('p','empty','Для расписания выберите конкретную дату.'));$('post2').append(make('p','empty','Все записи доступны на вкладке «Список».'));return}
+for(let h=9;h<=20;h++){const t=String(h).padStart(2,'0')+':00';const occupied=data.filter(b=>active.has(b.status)&&time5(b)===t);const actual=allBookings.filter(b=>active.has(b.status)&&time5(b)===t);for(let i=0;i<2;i++){const slot=make('div','slot');const top=make('div','slothead');top.append(make('strong','',t));top.append(make('span','pill '+(actual.length>=2?'full':''),actual.length>=2?'Занято':'Есть место'));slot.append(top);if(occupied[i])slot.append(card(occupied[i]));else if(actual[i])slot.append(make('div','empty','Запись скрыта фильтром поиска'));else slot.append(make('div','empty','Свободно'));$(i?'post2':'post1').append(slot)}}}
+async function loadBookings(){if(!authorized)return;const id=++loadId;note('Загружаем записи…');let query=client.from('bookings').select('id,name,phone,service,wheel_size,requested_date,requested_time,comment,status,created_at').order('requested_date',{ascending:true}).order('requested_time',{ascending:true});if($('filterDate').value)query=query.eq('requested_date',$('filterDate').value);try{const {data,error}=await query.limit(1000);if(id!==loadId)return;if(error)throw error;allBookings=data||[];render();note(`Загружено записей: ${allBookings.length}${allBookings.length===1000?' (показаны первые 1000)':''}`)}catch(e){if(id!==loadId)return;console.error(e);allBookings=[];render();note('Не удалось загрузить записи. Проверьте подключение и права доступа.')}} 
+function setView(v){view=v;$('scheduleView').classList.toggle('hidden',v!=='schedule');$('listView').classList.toggle('hidden',v!=='list');$('scheduleTab').setAttribute('aria-pressed',String(v==='schedule'));$('listTab').setAttribute('aria-pressed',String(v==='list'))}
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();if(!client){$('loginMessage').textContent='Подключение ещё не готово. Обновите страницу.';return;}$('loginBtn').disabled=true;$('loginMessage').textContent='Входим…';try{const {error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;$('password').value='';showAuth(true);await loadBookings();$('loginMessage').textContent=''}catch(err){console.error(err);$('loginMessage').textContent='Не удалось войти. Проверьте почту и пароль.'}finally{$('loginBtn').disabled=false}});
+$('logoutBtn').addEventListener('click',async()=>{await client.auth.signOut();++loadId;showAuth(false)});
+$('refreshBtn').addEventListener('click',loadBookings);
+$('todayBtn').addEventListener('click',()=>{$('filterDate').value=today();loadBookings()});
+$('allBtn').addEventListener('click',()=>{$('filterDate').value='';setView('list');loadBookings()});
+$('filterDate').addEventListener('change',loadBookings);
+$('searchInput').addEventListener('input',render);
+$('scheduleTab').addEventListener('click',()=>setView('schedule'));
+$('listTab').addEventListener('click',()=>setView('list'));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&authorized)loadBookings()});
+(async()=>{try{await setup();$('loginBtn').disabled=false;$('loginBtn').textContent='Войти';$('filterDate').value=today();const {data:{session},error}=await client.auth.getSession();if(error)throw error;showAuth(!!session);if(session)await loadBookings()}catch(e){console.error(e);$('loginBtn').textContent='Подключение недоступно';$('loginMessage').textContent='Ошибка подключения: '+e.message}})();
+</script></body></html>
