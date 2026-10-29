@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=113902873', 'ym');
+
+    ym(113902873, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/113902873" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111214">
+  <meta name="description" content="Про.Кол — шиномонтаж в Ростове-на-Дону. Шиномонтаж, балансировка, ремонт проколов и правка дисков. Уточните услуги и запишитесь онлайн.">
+  <title>Про.Кол — шиномонтаж в Ростове-на-Дону</title>
+  <style>
+    :root{--bg:#111214;--panel:#191b1f;--panel2:#202329;--text:#f6f6f4;--muted:#a8abb2;--accent:#ff6a1a;--accent2:#ff8a35;--line:#30333a;--max:1160px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:86px}
+    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+    a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}
+    button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}
+    .wrap{width:min(var(--max),calc(100% - 40px));margin:auto}
+    .topline{height:4px;background:linear-gradient(90deg,var(--accent),#ffb347)}
+    header{position:sticky;top:0;z-index:10;background:rgba(17,18,20,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.08)}
+    .nav{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:950;font-size:24px;letter-spacing:-1px}
+    .brand-mark{width:52px;height:52px;flex:none;border-radius:50%;object-fit:contain;display:block;background:#111214;border:1px solid #ff6a1a55}
+    .brand-dot{color:var(--accent)}
+    .navlinks{display:flex;align-items:center;gap:26px;color:#d4d5d8;font-size:14px}
+    .navlinks a:hover{color:var(--accent2)}
+    .nav-actions{display:flex;align-items:center;gap:12px}
+    .btn{border:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px 19px;border-radius:12px;font-weight:800;transition:transform .18s,background .18s,border-color .18s}
+    .btn:hover{transform:translateY(-2px)}
+    .btn-primary{background:var(--accent);color:#17110d;box-shadow:0 8px 24px #ff6a1a20}
+    .btn-primary:hover{background:var(--accent2)}
+    .btn-outline{border:1px solid #464951;background:transparent;color:var(--text)}
+    .btn-outline:hover{border-color:var(--accent)}
+    .btn-small{padding:10px 14px;font-size:14px}
+    .menu-btn{display:none;background:transparent;color:white;border:1px solid var(--line);border-radius:10px;padding:9px 12px}
+    .hero{padding:76px 0 60px;overflow:hidden;position:relative}
+    .hero:before{content:"";position:absolute;width:580px;height:580px;border-radius:50%;border:1px solid #ffffff08;right:-160px;top:-180px;box-shadow:0 0 0 55px #ffffff03,0 0 0 110px #ffffff02;pointer-events:none}
+    .hero-grid{display:grid;grid-template-columns:1.02fr .98fr;align-items:center;gap:54px;position:relative}
+    .eyebrow{display:inline-flex;align-items:center;gap:9px;color:var(--accent2);font-size:12px;font-weight:900;letter-spacing:1.8px;text-transform:uppercase}
+    .eyebrow:before{content:"";width:24px;height:2px;background:var(--accent)}
+    h1{font-size:clamp(42px,5.7vw,72px);line-height:.99;letter-spacing:-3.7px;margin:22px 0 22px;font-weight:950}
+    h1 span{color:var(--accent)}
+    .hero-copy{max-width:540px;color:#bfc1c6;font-size:18px;margin:0 0 28px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .trustline{display:flex;align-items:center;gap:12px;margin-top:28px;color:var(--muted);font-size:13px}
+    .trust-icon{width:31px;height:31px;display:grid;place-items:center;background:#24262a;border:1px solid #383b41;border-radius:50%;color:var(--accent)}
+    .hero-art{min-height:410px;position:relative;display:flex;align-items:center;justify-content:center}
+    .hero-photo{position:absolute;inset:10px 0 10px 18px;border-radius:30px;overflow:hidden;background:#25272b}
+    .hero-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.78) contrast(1.08)}
+    .hero-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,#10111455,transparent 48%,#ff6a1a22)}
+    .hero-tag{position:absolute;bottom:28px;left:-6px;z-index:1;background:var(--accent);color:#17110d;padding:15px 18px;border-radius:14px;font-weight:900;box-shadow:0 14px 35px #0007}
+    .hero-tag small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:1px;opacity:.75}
+    .hero-stamp{position:absolute;right:-14px;top:0;border:1px solid #ffffff28;background:#17181bdc;backdrop-filter:blur(12px);padding:14px 17px;border-radius:14px;font-weight:800}
+    .hero-stamp span{color:var(--accent)}
+    .stats{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#151619}
+    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+    .stat{padding:22px 24px;display:flex;align-items:center;gap:13px;border-right:1px solid var(--line)}
+    .stat:last-child{border-right:0}
+    .stat-icon{color:var(--accent);font-size:22px}
+    .stat strong{display:block;font-size:14px}.stat span{display:block;color:var(--muted);font-size:12px}
+    section{padding:88px 0}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:34px}
+    .kicker{color:var(--accent);text-transform:uppercase;letter-spacing:1.8px;font-weight:900;font-size:12px}
+    h2{font-size:clamp(30px,4vw,46px);letter-spacing:-1.8px;line-height:1.08;margin:10px 0 0}
+    .section-desc{max-width:430px;color:var(--muted);margin:0}
+    .services-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .service-card{padding:23px;background:linear-gradient(145deg,#1c1e22,#161719);border:1px solid var(--line);border-radius:18px;min-height:222px;display:flex;flex-direction:column;transition:transform .2s,border-color .2s}
+    .service-card:hover{transform:translateY(-5px);border-color:#ff6a1a88}
+    .service-icon{width:48px;height:48px;border-radius:14px;background:#ff6a1a18;color:var(--accent);display:grid;place-items:center;font-size:25px;margin-bottom:26px}
+    .service-card h3{margin:0 0 8px;font-size:18px;letter-spacing:-.3px}
+    .service-card p{margin:0;color:var(--muted);font-size:13px}
+    .service-link{margin-top:auto;padding-top:20px;color:var(--accent2);font-size:13px;font-weight:800}
+    .price-note{margin-top:18px;padding:15px 18px;border-radius:12px;border:1px dashed #45474d;color:var(--muted);font-size:13px}
+    .price-note strong{color:var(--text)}
+    .why{background:#17181b;border-top:1px solid #24262b;border-bottom:1px solid #24262b}
+    .why-grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:56px;align-items:center}
+    .why-visual{height:420px;border-radius:24px;overflow:hidden;position:relative;background:#25272b}
+    .why-visual img{width:100%;height:100%;object-fit:cover;filter:brightness(.76)}
+    .visual-label{position:absolute;left:20px;bottom:20px;right:20px;background:#111214df;border:1px solid #ffffff1b;border-radius:14px;padding:16px 18px;backdrop-filter:blur(10px)}
+    .visual-label strong{display:block}.visual-label span{color:var(--muted);font-size:13px}
+    .benefits{display:grid;gap:22px;margin-top:30px}
+    .benefit{display:flex;gap:15px;align-items:flex-start}
+    .check{width:30px;height:30px;flex:none;border-radius:9px;background:#ff6a1a1c;color:var(--accent);display:grid;place-items:center;font-weight:900}
+    .benefit h3{font-size:16px;margin:1px 0 4px}.benefit p{font-size:13px;color:var(--muted);margin:0}
+    .price-block{margin-top:28px;padding:24px;background:#17191d;border:1px solid var(--line);border-radius:18px}
+    .price-block h3{font-size:21px;margin:0 0 14px}
+    .price-caption{margin:22px 0 9px;color:var(--accent2);font-size:13px;font-weight:900;letter-spacing:.3px}
+    .table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+    .price-table{width:100%;border-collapse:collapse;min-width:620px;font-size:13px}
+    .price-table th,.price-table td{padding:12px 14px;text-align:left;border-bottom:1px solid #30333a}
+    .price-table thead th{background:#24272d;color:#f6f6f4;font-weight:800}
+    .price-table tbody th{color:var(--accent2);white-space:nowrap}
+    .price-table td{color:#e8e9eb}
+    .price-table tr:last-child th,.price-table tr:last-child td{border-bottom:0}
+    .price-table tbody tr:nth-child(even){background:#1e2025}
+    .price-table.compact{min-width:400px}
+    .price-extras{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+    .price-extras span,.price-extras strong{padding:11px 13px;border-bottom:1px solid var(--line);font-size:13px}
+    .price-extras span:nth-last-child(2),.price-extras strong:last-child{border-bottom:0}
+    .price-extras strong{color:var(--accent2);text-align:right}
+    .booking-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:48px;align-items:start}
+    .booking-copy p{color:var(--muted)}
+    .booking-points{display:grid;gap:12px;margin-top:24px}
+    .booking-points div{display:flex;gap:10px;align-items:center;font-size:14px;color:#d7d8db}
+    .booking-points span{color:var(--accent)}
+    .form-card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:28px}
+    .form-card h3{font-size:22px;margin:0 0 6px}.form-sub{color:var(--muted);font-size:13px;margin:0 0 23px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .field{display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}
+    label{font-size:12px;color:#d5d6d9;font-weight:750}
+    input,select,textarea{width:100%;padding:13px 14px;border-radius:11px;border:1px solid #3a3d44;background:#121316;color:var(--text);outline:none}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px #ff6a1a18}
+    input::placeholder,textarea::placeholder{color:#777b83}
+    select{appearance:auto}textarea{min-height:84px;resize:vertical}
+    .consent{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:11px;margin:17px 0}
+    .consent input{width:16px;margin-top:2px;accent-color:var(--accent)}
+    .form-card .btn{width:100%}
+    .form-message{display:none;margin-top:14px;padding:12px;border-radius:10px;background:#263126;color:#c8f5ca;font-size:13px}
+    .form-message.show{display:block}
+    .gallery-grid{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:14px}
+    .gallery-item{height:235px;border-radius:17px;overflow:hidden;background:#222;position:relative}
+    .gallery-item:first-child{height:300px;grid-row:span 2}
+    .gallery-item img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.8);transition:transform .4s}
+    .gallery-item:hover img{transform:scale(1.05)}
+    .gallery-item span{position:absolute;bottom:13px;left:14px;background:#111214c9;border:1px solid #ffffff1b;padding:7px 10px;border-radius:8px;font-size:12px;font-weight:750}
+    .gallery-note{color:var(--muted);font-size:12px;margin-top:14px}
+    .contact-band{background:linear-gradient(110deg,#ff6a1a,#ff8b35);color:#17110d;border-radius:24px;padding:35px 38px;display:flex;align-items:center;justify-content:space-between;gap:28px}
+    .contact-band h2{font-size:clamp(27px,3.5vw,39px);margin:0;letter-spacing:-1.4px}.contact-band p{margin:9px 0 0;opacity:.78}
+    .contact-band .btn{background:#151619;color:white;white-space:nowrap}
+    .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+    .contact-card{padding:24px;border:1px solid var(--line);background:var(--panel);border-radius:18px}
+    .contact-card h3{font-size:20px;margin:9px 0 12px}
+    .contact-card p{color:#d0d2d6;margin:8px 0}
+    .contact-card a:hover{color:var(--accent2)}
+    .map-link{display:inline-block;color:var(--accent2);font-weight:800;margin-top:8px}
+    footer{padding:34px 0 100px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+    .footer-row{display:flex;justify-content:space-between;align-items:center;gap:20px}.footer-brand{color:var(--text);font-size:19px;font-weight:950}
+    .footer-links{display:flex;gap:18px;flex-wrap:wrap}.footer-links a:hover{color:var(--accent)}
+    .mobile-bar{display:none}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:950px){.navlinks{gap:14px}.hero-grid{gap:28px}.hero-art{min-height:360px}.services-grid{grid-template-columns:repeat(2,1fr)}.why-grid{gap:32px}.booking-grid{gap:28px}}
+    @media(max-width:720px){
+      .wrap{width:min(var(--max),calc(100% - 28px))}.nav{min-height:66px}.nav-actions>.btn{display:none}.menu-btn{display:block}
+      .navlinks{display:none;position:absolute;top:66px;left:0;right:0;padding:18px 22px 22px;background:#151619;border-bottom:1px solid var(--line);flex-direction:column;align-items:stretch;gap:0}
+      .navlinks.open{display:flex}.navlinks a{padding:12px 0;border-bottom:1px solid #292b30}.navlinks a:last-child{border:0}
+      .hero{padding:48px 0 38px}.hero-grid{grid-template-columns:1fr;gap:25px}h1{font-size:clamp(43px,12vw,62px);letter-spacing:-2.7px}.hero-copy{font-size:16px}
+      .hero-art{min-height:310px}.hero-photo{inset:0 0 0 12px}.hero-tag{left:0;bottom:17px}.hero-stamp{right:0;top:-10px}
+      .stats-grid{grid-template-columns:1fr}.stat{padding:15px 8px;border-right:0;border-bottom:1px solid var(--line)}.stat:last-child{border-bottom:0}
+      section{padding:62px 0}.section-head{display:block}.section-desc{margin-top:14px}
+      .services-grid{gap:10px}.service-card{padding:17px;min-height:205px}.service-icon{margin-bottom:18px}
+      .why-grid,.booking-grid,.contact-grid{grid-template-columns:1fr}.why-visual{height:300px}.benefits{margin-top:22px}
+      .form-card{padding:20px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}
+      .gallery-grid{grid-template-columns:1fr 1fr;gap:10px}.gallery-item,.gallery-item:first-child{height:190px;grid-row:auto}.gallery-item:first-child{grid-column:1/-1;height:235px}
+      .contact-band{padding:26px 22px;display:block}.contact-band .btn{margin-top:20px;width:100%}
+      .footer-row{align-items:flex-start;flex-direction:column}.mobile-bar{display:flex;position:fixed;z-index:20;bottom:0;left:0;right:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));gap:10px;background:#111214ed;border-top:1px solid #34363b;backdrop-filter:blur(14px)}.mobile-bar .btn{flex:1;padding:12px 8px}
+      footer{padding-bottom:110px}
+    }
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
+  </style>
+</head>
+<body>
+  <div class="topline"></div>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="#home" aria-label="Про.Кол — на главную"><img class="brand-mark" src="images/logo.png" alt="Логотип Про.Кол" width="52" height="52"><span>Про<span class="brand-dot">.</span>Кол</span></a>
+      <nav class="navlinks" id="navlinks" aria-label="Главная навигация">
+        <a href="#services">Услуги</a>
+        <a href="#booking">Запись</a>
+      </nav>
+      <div class="nav-actions"><a class="btn btn-outline btn-small" href="tel:+79281014829">Позвонить</a><a class="btn btn-primary btn-small" href="#booking">Записаться <span aria-hidden="true">↗</span></a><button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="navlinks">☰ <span class="sr-only">Открыть меню</span></button></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow">Шиномонтаж · Ростов-на-Дону</div>
+          <h1>Колёса в порядке.<br><span>Ты — в пути.</span></h1>
+          <p class="hero-copy">Про.Кол — шиномонтаж, балансировка, ремонт проколов и правка дисков. Выберите услугу и оставьте заявку — согласуем детали по телефону.</p>
+          <div class="hero-actions"><a class="btn btn-primary" href="#booking">Записаться онлайн <span aria-hidden="true">↗</span></a><a class="btn btn-outline" href="#services">Наши услуги <span aria-hidden="true">↓</span></a></div>
+          <div class="trustline"><span class="trust-icon">✓</span><span>Понятный процесс и согласование работ до начала</span></div>
+        </div>
+        <div class="hero-art">
+          <div class="hero-photo"><img src="images/prokol-workshop.webp" alt="Вход в шиномонтажную мастерскую Про.Кол" fetchpriority="high"></div>
+          <div class="hero-tag"><small>Внимание к деталям</small>Каждое колесо имеет значение</div>
+          <div class="hero-stamp">ПРО<span>.</span>КОЛ<span></span> / RND</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="stats"><div class="wrap stats-grid">
+      <div class="stat"><span class="stat-icon">◉</span><div><strong>Переобувка и перекидка колёс</strong><span>Работы с колёсами и шинами</span></div></div>
+      <div class="stat"><span class="stat-icon">◎</span><div><strong>Балансировка</strong><span>Для комфортного движения</span></div></div>
+      <div class="stat"><span class="stat-icon">↗</span><div><strong>Ремонт дисков</strong><span>Проколы и правка дисков</span></div></div>
+    </div></div>
+
+    <section id="services">
+      <div class="wrap">
+        <div class="section-head"><div><div class="kicker">Что мы делаем</div><h2>Наши услуги</h2></div><p class="section-desc">Выберите нужную услугу. Стоимость зависит от размера колеса, типа диска и характера повреждения — уточним при обращении.</p></div>
+        <div class="services-grid">
+          <article class="service-card"><div class="service-icon">◉</div><h3>Переобувка</h3><p>Снятие шин с дисков, установка других шин и подготовка колёс к сезону.</p><a class="service-link" href="#booking" data-service="Переобувка">Уточнить и записаться ↗</a></article>
+          <article class="service-card"><div class="service-icon">↔</div><h3>Перекидка колёс</h3><p>Смена колёс в сборе без снятия шин с дисков.</p><a class="service-link" href="#booking" data-service="Перекидка колёс">Уточнить и записаться ↗</a></article>
+          <article class="service-card"><div class="service-icon">◎</div><h3>Балансировка</h3><p>Балансировка колёс для более ровного и комфортного движения.</p><a class="service-link" href="#booking" data-service="Балансировка">Уточнить и записаться ↗</a></article>
+          <article class="service-card"><div class="service-icon">⌁</div><h3>Ремонт проколов</h3><p>Осмотр повреждения и подбор подходящего способа ремонта.</p><a class="service-link" href="#booking" data-service="Ремонт проколов">Уточнить и записаться ↗</a></article>
+          <article class="service-card"><div class="service-icon">⟳</div><h3>Правка дисков</h3><p>Проверка состояния диска и оценка возможности восстановления.</p><a class="service-link" href="#booking" data-service="Правка дисков">Уточнить и записаться ↗</a></article>
+        </div>
+        <div class="price-note"><strong>Важно:</strong> стоимость указана в рублях. Для нестандартных размеров, низкого профиля и Run Flat возможны доплаты — уточняйте перед началом работ.</div>
+        <div class="price-block">
+          <h3>Прайс на сезонную смену шин и колёс</h3>
+          <p class="price-caption">Легковые автомобили</p>
+          <div class="table-scroll"><table class="price-table">
+            <thead><tr><th>Размер</th><th>Смена шин</th><th>Смена колёс без балансировки</th><th>Смена колёс с балансировкой</th></tr></thead>
+            <tbody>
+              <tr><th>R13</th><td>2 000 ₽</td><td>1 000 ₽</td><td>1 500 ₽</td></tr>
+              <tr><th>R14</th><td>2 000 ₽</td><td>1 000 ₽</td><td>1 500 ₽</td></tr>
+              <tr><th>R15</th><td>2 200 ₽</td><td>1 000 ₽</td><td>1 800 ₽</td></tr>
+              <tr><th>R16</th><td>2 400 ₽</td><td>1 000 ₽</td><td>1 800 ₽</td></tr>
+              <tr><th>R17</th><td>2 800 ₽</td><td>1 000 ₽</td><td>2 000 ₽</td></tr>
+              <tr><th>R18</th><td>3 200 ₽</td><td>1 300 ₽</td><td>2 500 ₽</td></tr>
+              <tr><th>R19</th><td>4 000 ₽</td><td>1 600 ₽</td><td>3 000 ₽</td></tr>
+              <tr><th>R20</th><td>5 000 ₽</td><td>2 000 ₽</td><td>3 500 ₽</td></tr>
+              <tr><th>R21</th><td>5 000 ₽</td><td>2 200 ₽</td><td>3 500 ₽</td></tr>
+              <tr><th>R22</th><td>6 000 ₽</td><td>2 500 ₽</td><td>4 000 ₽</td></tr>
+            </tbody>
+          </table></div>
+          <p class="price-caption">Кроссоверы и минивэны</p>
+          <div class="table-scroll"><table class="price-table">
+            <thead><tr><th>Размер</th><th>Смена шин</th><th>Смена колёс без балансировки</th><th>Смена колёс с балансировкой</th></tr></thead>
+            <tbody>
+              <tr><th>R15</th><td>2 600 ₽</td><td>1 000 ₽</td><td>2 000 ₽</td></tr>
+              <tr><th>R16</th><td>2 800 ₽</td><td>1 200 ₽</td><td>2 000 ₽</td></tr>
+              <tr><th>R17</th><td>3 200 ₽</td><td>1 200 ₽</td><td>2 200 ₽</td></tr>
+              <tr><th>R18</th><td>3 600 ₽</td><td>1 500 ₽</td><td>2 500 ₽</td></tr>
+              <tr><th>R19</th><td>4 500 ₽</td><td>1 800 ₽</td><td>3 000 ₽</td></tr>
+              <tr><th>R20</th><td>6 000 ₽</td><td>2 500 ₽</td><td>4 000 ₽</td></tr>
+              <tr><th>R21</th><td>6 000 ₽</td><td>2 500 ₽</td><td>4 000 ₽</td></tr>
+              <tr><th>R22</th><td>7 000 ₽</td><td>3 000 ₽</td><td>5 000 ₽</td></tr>
+            </tbody>
+          </table></div>
+          <p class="price-caption">Правка литого диска — цена от</p>
+          <div class="table-scroll"><table class="price-table compact">
+            <tbody>
+              <tr><th>R13</th><td>от 1 500 ₽</td><th>R18</th><td>от 3 200 ₽</td></tr>
+              <tr><th>R14</th><td>от 1 800 ₽</td><th>R19</th><td>от 3 600 ₽</td></tr>
+              <tr><th>R15</th><td>от 2 100 ₽</td><th>R20</th><td>от 4 000 ₽</td></tr>
+              <tr><th>R16</th><td>от 2 500 ₽</td><th>R21</th><td>от 5 000 ₽</td></tr>
+              <tr><th>R17</th><td>от 2 800 ₽</td><th>R22</th><td>от 6 000 ₽</td></tr>
+            </tbody>
+          </table></div>
+          <p class="price-caption">Ремонт шин и дополнительные услуги</p>
+          <div class="table-scroll"><table class="price-table">
+            <tbody>
+              <tr><th>Вентиль</th><td>100 ₽</td><th>Подкачка 4 колёс</th><td>200 ₽</td></tr>
+              <tr><th>Ремонт жгутом</th><td>250 ₽</td><th>Косметический ремонт шины</th><td>от 700 ₽</td></tr>
+              <tr><th>Грибок</th><td>350 ₽</td><th>Проверка колеса</th><td>от 50 ₽</td></tr>
+              <tr><th>Латка автомобильная</th><td>200 ₽</td><th>Монтаж/демонтаж датчика давления</th><td>300 ₽</td></tr>
+              <tr><th>Ремонт велосипедной шины</th><td>200 ₽</td><th>Монтаж/демонтаж камеры</th><td>200 ₽</td></tr>
+              <tr><th>Чистка диска</th><td>100 ₽</td><th>Взрывная подкачка</th><td>150 ₽</td></tr>
+              <tr><th>Герметик (1 колесо)</th><td>150 ₽</td><th>Порезы пластырями</th><td>R10 — 600 ₽; R15 — 800 ₽; R18 — 1 000 ₽; R20 — 1 200 ₽; R25 — 1 500 ₽; R33 — 1 600 ₽</td></tr>
+            </tbody>
+          </table></div>
+          <p class="price-caption">Доплаты</p>
+          <div class="price-extras"><span>Низкий профиль (50 и ниже)</span><strong>+20%</strong><span>Run Flat</span><strong>+20%</strong><span>Внедорожник (л/т, м/т +30%)</span><strong>4 600 / 2 600 / 3 600 ₽*</strong><span>Микроавтобус, 4 колеса</span><strong>4 000 / 2 000 / 3 000 ₽*</strong><span>Микроавтобус, 6 колёс / Газель</span><strong>6 000 / 3 000 / 4 000 ₽*</strong></div>
+          <p class="gallery-note">*Для специальных категорий значения приведены в порядке: смена шин / смена колёс без балансировки / смена колёс с балансировкой. Уточните применимость тарифа при записи.</p>
+        </div>
+      </div>
+    </section>
+
+
+
+    <section id="booking">
+      <div class="wrap booking-grid">
+        <div class="booking-copy"><div class="kicker">Онлайн-запись</div><h2>Подберём удобное время</h2><p>Заполните короткую форму. Выберите свободное время и отправьте заявку. Мы свяжемся с вами для подтверждения записи.</p>
+          <div class="booking-points"><div><span>↗</span> Выберите услугу</div><div><span>↗</span> Укажите размер колёс, если знаете</div><div><span>↗</span> Оставьте номер для связи</div></div>
+        </div>
+        <form class="form-card" id="bookingForm">
+          <h3>Запись в Про.Кол</h3><p class="form-sub">Поля со звёздочкой обязательны.</p>
+          <div class="form-grid">
+            <div class="field"><label for="name">Ваше имя *</label><input id="name" name="name" autocomplete="name" placeholder="Как к вам обращаться" required minlength="2"></div>
+            <div class="field"><label for="phone">Телефон *</label><input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 ___ ___-__-__" required></div>
+            <div class="field"><label for="service">Услуга *</label><select id="service" name="service" required><option value="">Выберите услугу</option><option>Переобувка</option><option>Перекидка колёс</option><option>Балансировка</option><option>Ремонт проколов</option><option>Правка дисков</option></select></div>
+            <div class="field"><label for="wheel">Размер колёс</label><select id="wheel" name="wheel"><option value="">Не знаю / другое</option><option>R13–R14</option><option>R15–R16</option><option>R17–R18</option><option>R19–R20</option><option>R21 и больше</option></select></div>
+            <div class="field">
+  <label for="requestedDate">Дата записи *</label>
+  <input id="requestedDate" name="requestedDate" type="date" required>
+</div>
+
+<div class="field">
+  <label for="requestedTime">Время записи *</label>
+  <select id="requestedTime" name="requestedTime" required>
+    <option value="">Выберите время</option>
+    <option value="09:00">09:00</option>
+    <option value="10:00">10:00</option>
+    <option value="11:00">11:00</option>
+    <option value="12:00">12:00</option>
+    <option value="13:00">13:00</option>
+    <option value="14:00">14:00</option>
+    <option value="15:00">15:00</option>
+    <option value="16:00">16:00</option>
+    <option value="17:00">17:00</option>
+    <option value="18:00">18:00</option>
+    <option value="19:00">19:00</option>
+    <option value="20:00">20:00</option>
+  </select>
+</div>
+            <div class="field full"><label for="comment">Комментарий</label><textarea id="comment" name="comment" placeholder="Марка авто, описание проблемы или вопросы"></textarea></div>
+          </div>
+          <label class="consent"><input type="checkbox" id="consent" required><span>Согласен(на) на обработку персональных данных для оформления и подтверждения записи. Ознакомлен(а) с <a href="privacy.html" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:underline">политикой конфиденциальности</a>.</span></label>
+          <button class="btn btn-primary" type="submit">Подготовить заявку <span aria-hidden="true">↗</span></button>
+          <div class="form-message" id="formMessage" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </section>
+
+
+    <section style="padding-top:15px;padding-bottom:75px">
+      <div class="wrap contact-band"><div><h2>Нужно привести колёса в порядок?</h2><p>Уланская улица, 8 · Ежедневно, 9:00–21:00</p></div><a class="btn" href="#booking">Оставить заявку ↗</a></div>
+      <div class="wrap contact-grid">
+        <div class="contact-card"><div class="kicker">Адрес и график</div><h3>Про.Кол</h3><p>Ростов-на-Дону, Уланская улица, 8</p><p><strong>Ежедневно:</strong> 9:00–21:00</p><a class="map-link" href="https://yandex.ru/maps/?ll=39.682242%2C47.311946&z=18&pt=39.682242%2C47.311946%2Cpm2rdm" target="_blank" rel="noopener">Открыть в Яндекс Картах ↗</a></div>
+        <div class="contact-card"><div class="kicker">Связаться с нами</div><h3>Позвоните для записи</h3><p><a href="tel:+79281014829">Кирилл: +7 (928) 101-48-29</a></p><p><a href="tel:+79398830173">Данил: +7 (939) 883-01-73</a></p><p><a href="tel:+79508508697">Евгения: +7 (950) 850-86-97</a></p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap footer-row"><div><div class="footer-brand">Про<span style="color:var(--accent)">.</span>Кол</div><div>Шиномонтаж · Ростов-на-Дону</div></div><div class="footer-links"><a href="#services">Услуги</a><a href="#booking">Запись</a><a href="tel:+79281014829">Позвонить</a><a href="privacy.html">Конфиденциальность</a><a href="#home">Наверх ↑</a></div><div>© <span id="year"></span> Про.Кол Все права защищены.</div></div></footer>
+  <div class="mobile-bar"><a class="btn btn-outline" href="tel:+79281014829">Позвонить</a><a class="btn btn-primary" href="#booking">Записаться ↗</a></div>
+
+  <script>
+    const menuBtn = document.getElementById('menuBtn');
+    const navlinks = document.getElementById('navlinks');
+    menuBtn.addEventListener('click', () => {
+      const isOpen = navlinks.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', String(isOpen));
+      menuBtn.firstChild.textContent = isOpen ? '✕ ' : '☰ ';
+    });
+    navlinks.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+      navlinks.classList.remove('open');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      menuBtn.firstChild.textContent = '☰ ';
+    }));
+    document.querySelectorAll('[data-service]').forEach(link => link.addEventListener('click', () => {
+      document.getElementById('service').value = link.dataset.service;
+    }));
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const phone = document.getElementById('phone');
+    phone.addEventListener('input', () => {
+      phone.setCustomValidity('');
+      const digits = phone.value.replace(/\D/g, '');
+      if (digits.length > 0 && digits.length < 10) phone.setCustomValidity('Проверьте номер телефона.');
+    });
+
+    
+const bookingForm = document.getElementById('bookingForm');
+const bookingDate = document.getElementById('requestedDate');
+const bookingTime = document.getElementById('requestedTime');
+const formMessage = document.getElementById('formMessage');
+const submitButton = bookingForm.querySelector('button[type="submit"]');
+const originalButtonText = submitButton.innerHTML;
+
+// ВАЖНО: должно совпадать с лимитом в SQL-функции submit_booking.
+const SLOT_CAPACITY = 2;
+const REQUEST_TIMEOUT_MS = 12000;
+const BUSINESS_TIME_ZONE = 'Europe/Moscow';
+let db = null;
+let slotsRequestId = 0;
+let slotsState = 'idle';
+let submitting = false;
+
+function showBookingMessage(text, isError = false) {
+  formMessage.textContent = text;
+  formMessage.classList.add('show');
+  formMessage.style.background = isError ? '#402323' : '#263126';
+  formMessage.style.color = isError ? '#ffe0e0' : '#c8f5ca';
+}
+
+function clearBookingMessage() {
+  formMessage.textContent = '';
+  formMessage.classList.remove('show');
+}
+
+function getDatabase() {
+  if (db) return db;
+  const config = window.PROKOL_CONFIG;
+  if (!config?.supabaseUrl || !config?.supabaseKey || !window.supabase) {
+    throw new Error('Не удалось подключить базу данных.');
+  }
+  db = window.supabase.createClient(config.supabaseUrl, config.supabaseKey);
+  return db;
+}
+
+// Promise.race ограничивает ожидание интерфейса; сам запрос может
+// завершиться позже, поэтому результат устаревшего запроса игнорируется.
+async function withTimeout(promise, ms = REQUEST_TIMEOUT_MS) {
+  let timer;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error('Превышено время ожидания ответа сервера.')), ms);
+      })
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function resetTimeOptions(label = 'Сначала выберите дату') {
+  bookingTime.value = '';
+  bookingTime.disabled = true;
+  for (const option of bookingTime.options) {
+    if (!option.value) {
+      option.textContent = label;
+      option.disabled = false;
+    } else {
+      option.disabled = true;
+      option.textContent = option.value;
+    }
+  }
+}
+
+function updateSubmitState() {
+  submitButton.disabled = submitting || slotsState !== 'ready' ||
+    !bookingDate.value || !bookingTime.value || bookingTime.disabled;
+}
+
+// Все проверки даты и времени выполняются по Ростову-на-Дону (UTC+3),
+// независимо от часового пояса телефона и расположения VPN.
+function businessNow() {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: BUSINESS_TIME_ZONE,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(p => [p.type, p.value]));
+  return {
+    date: `${values.year}-${values.month}-${values.day}`,
+    time: `${values.hour}:${values.minute}`
+  };
+}
+
+function businessDateString() {
+  return businessNow().date;
+}
+
+function isPastBusinessSlot(date, time) {
+  const now = businessNow();
+  return date < now.date || (date === now.date && time <= now.time);
+}
+
+function setMinBookingDate() {
+  bookingDate.min = businessDateString();
+  if (bookingDate.value && bookingDate.value < bookingDate.min) {
+    bookingDate.value = '';
+    slotsState = 'idle';
+    resetTimeOptions();
+  }
+}
+
+async function loadAvailableSlots() {
+  const selectedDate = bookingDate.value;
+  const requestId = ++slotsRequestId;
+  slotsState = 'loading';
+  resetTimeOptions('Загружаем свободные часы…');
+  updateSubmitState();
+  clearBookingMessage();
+
+  if (!selectedDate) {
+    slotsState = 'idle';
+    resetTimeOptions();
+    updateSubmitState();
+    return;
+  }
+  if (selectedDate < businessDateString()) {
+    slotsState = 'error';
+    resetTimeOptions('Выберите другую дату');
+    showBookingMessage('Нельзя записаться на прошедшую дату.', true);
+    updateSubmitState();
+    return;
+  }
+
+  try {
+    const { data, error } = await withTimeout(
+      getDatabase().rpc('get_booking_slots', { p_date: selectedDate })
+    );
+    if (requestId !== slotsRequestId || bookingDate.value !== selectedDate) return;
+    if (error) throw error;
+    if (!Array.isArray(data)) throw new Error('Сервер вернул некорректный список часов.');
+
+    const slots = new Map();
+    for (const slot of data) {
+      const time = String(slot.slot_time ?? '').slice(0, 5);
+      const count = Number(slot.booked_count);
+      if (!/^\d{2}:\d{2}$/.test(time) || !Number.isFinite(count) || count < 0) {
+        throw new Error('Некорректные данные о занятых часах.');
+      }
+      slots.set(time, count);
+    }
+
+    // Для корректной проверки функция должна вернуть все интервалы,
+    // включая интервалы с нулём записей.
+    const expectedTimes = Array.from(bookingTime.options).filter(o => o.value).map(o => o.value);
+    if (expectedTimes.some(time => !slots.has(time))) {
+      throw new Error('Сервер вернул неполный список доступных часов.');
+    }
+
+    let freeCount = 0;
+    for (const option of bookingTime.options) {
+      if (!option.value) continue;
+      const past = isPastBusinessSlot(selectedDate, option.value);
+      const full = slots.get(option.value) >= SLOT_CAPACITY;
+      option.disabled = past || full;
+      option.textContent = `${option.value} — ${past ? 'время прошло' : full ? 'занято' : 'свободно'}`;
+      if (!past && !full) freeCount++;
+    }
+    bookingTime.options[0].textContent = freeCount
+      ? 'Выберите свободное время'
+      : 'Свободного времени нет';
+    bookingTime.disabled = freeCount === 0;
+    slotsState = 'ready';
+    if (!freeCount) showBookingMessage('На выбранную дату доступного времени нет. Выберите другую дату.');
+  } catch (error) {
+    if (requestId !== slotsRequestId || bookingDate.value !== selectedDate) return;
+    console.error('Ошибка загрузки свободных часов:', error);
+    slotsState = 'error';
+    resetTimeOptions('Не удалось загрузить время');
+    showBookingMessage('Не удалось проверить свободные часы. Попробуйте выбрать дату ещё раз или позвоните нам.', true);
+  } finally {
+    if (requestId === slotsRequestId) updateSubmitState();
+  }
+}
+
+bookingDate.addEventListener('change', loadAvailableSlots);
+bookingTime.addEventListener('change', () => {
+  if (bookingTime.value && isPastBusinessSlot(bookingDate.value, bookingTime.value)) {
+    bookingTime.value = '';
+    showBookingMessage('Это время уже прошло по Ростову-на-Дону. Выберите другое.', true);
+  }
+  updateSubmitState();
+});
+
+// После возвращения из другой вкладки обновляем часы и дату:
+// за время отсутствия могли появиться новые заявки или наступить новый день.
+function refreshBookingOnReturn() {
+  if (document.hidden || submitting) return;
+  const previousDate = bookingDate.value;
+  setMinBookingDate();
+  if (bookingDate.value) {
+    loadAvailableSlots();
+  } else if (previousDate) {
+    ++slotsRequestId;
+    updateSubmitState();
+  }
+}
+document.addEventListener('visibilitychange', refreshBookingOnReturn);
+window.addEventListener('pageshow', event => {
+  if (event.persisted) refreshBookingOnReturn();
+});
+setMinBookingDate();
+resetTimeOptions();
+updateSubmitState();
+
+bookingForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  if (submitting) return;
+  setMinBookingDate();
+  if (slotsState !== 'ready' || !bookingTime.value || bookingTime.selectedOptions[0]?.disabled) {
+    showBookingMessage('Сначала выберите дату и дождитесь загрузки свободного времени.', true);
+    return;
+  }
+  if (isPastBusinessSlot(bookingDate.value, bookingTime.value)) {
+    showBookingMessage('Выбранное время уже прошло по Ростову-на-Дону. Выберите другое.', true);
+    loadAvailableSlots();
+    return;
+  }
+  if (!bookingForm.reportValidity()) return;
+
+  const data = Object.fromEntries(new FormData(bookingForm).entries());
+  submitting = true;
+  submitButton.textContent = 'Отправляем заявку…';
+  updateSubmitState();
+  showBookingMessage('Отправляем заявку…');
+
+  try {
+    const { data: result, error } = await withTimeout(
+      getDatabase().rpc('submit_booking', {
+        p_name: data.name.trim(),
+        p_phone: data.phone.trim(),
+        p_service: data.service,
+        p_wheel_size: data.wheel || null,
+        p_requested_date: data.requestedDate,
+        p_requested_time: data.requestedTime,
+        p_comment: data.comment.trim() || null
+      }),
+      15000
+    );
+    if (error) throw error;
+    if (result && result.error) throw new Error(String(result.error));
+    showBookingMessage('Заявка отправлена! Дождитесь подтверждения времени по телефону.');
+    bookingForm.reset();
+    ++slotsRequestId;
+    slotsState = 'idle';
+    resetTimeOptions();
+    setMinBookingDate();
+  } catch (error) {
+    console.error('Ошибка отправки заявки:', error);
+    // После тайм-аута заявка могла попасть в базу. Не предлагаем
+    // немедленно повторять отправку без проверки у администратора.
+    if (/время ожидания/i.test(error.message)) {
+      showBookingMessage('Не получили подтверждение от сервера. Заявка могла сохраниться. Позвоните нам, чтобы проверить запись, прежде чем отправлять её повторно.', true);
+    } else {
+      showBookingMessage('Не удалось подтвердить запись. Возможно, время уже занято. Выберите дату заново или позвоните нам.', true);
+    }
+    ++slotsRequestId;
+    slotsState = 'error';
+    resetTimeOptions('Проверьте часы ещё раз');
+  } finally {
+    submitting = false;
+    submitButton.innerHTML = originalButtonText;
+    updateSubmitState();
+  }
+});
+  </script>
+</body>
+</html>
