@@ -424,12 +424,28 @@ function updateSubmitState() {
     !bookingDate.value || !bookingTime.value || bookingTime.disabled;
 }
 
-function businessDateString() {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: BUSINESS_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit'
+// Все проверки даты и времени выполняются по Ростову-на-Дону (UTC+3),
+// независимо от часового пояса телефона и расположения VPN.
+function businessNow() {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: BUSINESS_TIME_ZONE,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
   }).formatToParts(new Date());
   const values = Object.fromEntries(parts.map(p => [p.type, p.value]));
-  return `${values.year}-${values.month}-${values.day}`;
+  return {
+    date: `${values.year}-${values.month}-${values.day}`,
+    time: `${values.hour}:${values.minute}`
+  };
+}
+
+function businessDateString() {
+  return businessNow().date;
+}
+
+function isPastBusinessSlot(date, time) {
+  const now = businessNow();
+  return date < now.date || (date === now.date && time <= now.time);
 }
 
 function setMinBookingDate() {
@@ -491,17 +507,18 @@ async function loadAvailableSlots() {
     let freeCount = 0;
     for (const option of bookingTime.options) {
       if (!option.value) continue;
+      const past = isPastBusinessSlot(selectedDate, option.value);
       const full = slots.get(option.value) >= SLOT_CAPACITY;
-      option.disabled = full;
-      option.textContent = `${option.value} — ${full ? 'занято' : 'свободно'}`;
-      if (!full) freeCount++;
+      option.disabled = past || full;
+      option.textContent = `${option.value} — ${past ? 'время прошло' : full ? 'занято' : 'свободно'}`;
+      if (!past && !full) freeCount++;
     }
     bookingTime.options[0].textContent = freeCount
       ? 'Выберите свободное время'
       : 'Свободного времени нет';
     bookingTime.disabled = freeCount === 0;
     slotsState = 'ready';
-    if (!freeCount) showBookingMessage('На выбранную дату свободных часов нет. Выберите другую дату.');
+    if (!freeCount) showBookingMessage('На выбранную дату доступного времени нет. Выберите другую дату.');
   } catch (error) {
     if (requestId !== slotsRequestId || bookingDate.value !== selectedDate) return;
     console.error('Ошибка загрузки свободных часов:', error);
@@ -514,7 +531,31 @@ async function loadAvailableSlots() {
 }
 
 bookingDate.addEventListener('change', loadAvailableSlots);
-bookingTime.addEventListener('change', updateSubmitState);
+bookingTime.addEventListener('change', () => {
+  if (bookingTime.value && isPastBusinessSlot(bookingDate.value, bookingTime.value)) {
+    bookingTime.value = '';
+    showBookingMessage('Это время уже прошло по Ростову-на-Дону. Выберите другое.', true);
+  }
+  updateSubmitState();
+});
+
+// После возвращения из другой вкладки обновляем часы и дату:
+// за время отсутствия могли появиться новые заявки или наступить новый день.
+function refreshBookingOnReturn() {
+  if (document.hidden || submitting) return;
+  const previousDate = bookingDate.value;
+  setMinBookingDate();
+  if (bookingDate.value) {
+    loadAvailableSlots();
+  } else if (previousDate) {
+    ++slotsRequestId;
+    updateSubmitState();
+  }
+}
+document.addEventListener('visibilitychange', refreshBookingOnReturn);
+window.addEventListener('pageshow', event => {
+  if (event.persisted) refreshBookingOnReturn();
+});
 setMinBookingDate();
 resetTimeOptions();
 updateSubmitState();
@@ -525,6 +566,11 @@ bookingForm.addEventListener('submit', async (event) => {
   setMinBookingDate();
   if (slotsState !== 'ready' || !bookingTime.value || bookingTime.selectedOptions[0]?.disabled) {
     showBookingMessage('Сначала выберите дату и дождитесь загрузки свободного времени.', true);
+    return;
+  }
+  if (isPastBusinessSlot(bookingDate.value, bookingTime.value)) {
+    showBookingMessage('Выбранное время уже прошло по Ростову-на-Дону. Выберите другое.', true);
+    loadAvailableSlots();
     return;
   }
   if (!bookingForm.reportValidity()) return;
