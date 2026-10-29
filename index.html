@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#111214">
   <meta name="description" content="Про.Кол. — шиномонтаж в Ростове-на-Дону. Шиномонтаж, балансировка, ремонт проколов и правка дисков. Уточните услуги и запишитесь онлайн.">
-  <title>Про.Кол — шиномонтаж в Ростове-на-Дону</title>
+  <title>Про.Кол. — шиномонтаж в Ростове-на-Дону</title>
   <style>
     :root{--bg:#111214;--panel:#191b1f;--panel2:#202329;--text:#f6f6f4;--muted:#a8abb2;--accent:#ff6a1a;--accent2:#ff8a35;--line:#30333a;--max:1160px}
     *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:86px}
@@ -269,7 +269,7 @@
 
     <section id="booking">
       <div class="wrap booking-grid">
-        <div class="booking-copy"><div class="kicker">Онлайн-запись</div><h2>Подберём удобное время</h2><p>Заполните короткую форму. После заполнения можно позвонить по одному из номеров ниже и подтвердить время. Отправка формы на сервер пока не подключена.</p>
+        <div class="booking-copy"><div class="kicker">Онлайн-запись</div><h2>Подберём удобное время</h2><p>Заполните короткую форму. Выберите свободное время и отправьте заявку. Мы свяжемся с вами для подтверждения записи.</p>
           <div class="booking-points"><div><span>↗</span> Выберите услугу</div><div><span>↗</span> Укажите размер колёс, если знаете</div><div><span>↗</span> Оставьте номер для связи</div></div>
         </div>
         <form class="form-card" id="bookingForm">
@@ -304,7 +304,7 @@
 </div>
             <div class="field full"><label for="comment">Комментарий</label><textarea id="comment" name="comment" placeholder="Марка авто, описание проблемы или вопросы"></textarea></div>
           </div>
-          <label class="consent"><input type="checkbox" id="consent" required><span>Согласен(на) на обработку персональных данных для ответа на заявку. Перед запуском сайта добавьте ссылку на опубликованную политику конфиденциальности.</span></label>
+          <label class="consent"><input type="checkbox" id="consent" required><span>Согласен(на) на обработку персональных данных для ответа на заявку. Подробнее — в политике обработки персональных данных (ссылку необходимо добавить перед запуском).</span></label>
           <button class="btn btn-primary" type="submit">Подготовить заявку <span aria-hidden="true">↗</span></button>
           <div class="form-message" id="formMessage" role="status" aria-live="polite"></div>
         </form>
@@ -354,119 +354,189 @@ const bookingForm = document.getElementById('bookingForm');
 const bookingDate = document.getElementById('requestedDate');
 const bookingTime = document.getElementById('requestedTime');
 const formMessage = document.getElementById('formMessage');
+const submitButton = bookingForm.querySelector('button[type="submit"]');
+const originalButtonText = submitButton.innerHTML;
+
+// ВАЖНО: должно совпадать с лимитом в SQL-функции submit_booking.
+const SLOT_CAPACITY = 2;
+const REQUEST_TIMEOUT_MS = 12000;
+const BUSINESS_TIME_ZONE = 'Europe/Moscow';
+let db = null;
+let slotsRequestId = 0;
+let slotsState = 'idle';
+let submitting = false;
+
+function showBookingMessage(text, isError = false) {
+  formMessage.textContent = text;
+  formMessage.classList.add('show');
+  formMessage.style.background = isError ? '#402323' : '#263126';
+  formMessage.style.color = isError ? '#ffe0e0' : '#c8f5ca';
+}
+
+function clearBookingMessage() {
+  formMessage.textContent = '';
+  formMessage.classList.remove('show');
+}
+
+function getDatabase() {
+  if (db) return db;
+  const config = window.PROKOL_CONFIG;
+  if (!config?.supabaseUrl || !config?.supabaseKey || !window.supabase) {
+    throw new Error('Не удалось подключить базу данных.');
+  }
+  db = window.supabase.createClient(config.supabaseUrl, config.supabaseKey);
+  return db;
+}
+
+// Promise.race ограничивает ожидание интерфейса; сам запрос может
+// завершиться позже, поэтому результат устаревшего запроса игнорируется.
+async function withTimeout(promise, ms = REQUEST_TIMEOUT_MS) {
+  let timer;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error('Превышено время ожидания ответа сервера.')), ms);
+      })
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function resetTimeOptions(label = 'Сначала выберите дату') {
+  bookingTime.value = '';
+  bookingTime.disabled = true;
+  for (const option of bookingTime.options) {
+    if (!option.value) {
+      option.textContent = label;
+      option.disabled = false;
+    } else {
+      option.disabled = true;
+      option.textContent = option.value;
+    }
+  }
+}
+
+function updateSubmitState() {
+  submitButton.disabled = submitting || slotsState !== 'ready' ||
+    !bookingDate.value || !bookingTime.value || bookingTime.disabled;
+}
+
+function businessDateString() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: BUSINESS_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(p => [p.type, p.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function setMinBookingDate() {
+  bookingDate.min = businessDateString();
+  if (bookingDate.value && bookingDate.value < bookingDate.min) {
+    bookingDate.value = '';
+    slotsState = 'idle';
+    resetTimeOptions();
+  }
+}
+
 async function loadAvailableSlots() {
   const selectedDate = bookingDate.value;
+  const requestId = ++slotsRequestId;
+  slotsState = 'loading';
+  resetTimeOptions('Загружаем свободные часы…');
+  updateSubmitState();
+  clearBookingMessage();
 
-  // Если дата не выбрана — ничего не меняем
-  if (!selectedDate) return;
-
-  bookingTime.disabled = true;
-
-  const previousValue = bookingTime.value;
+  if (!selectedDate) {
+    slotsState = 'idle';
+    resetTimeOptions();
+    updateSubmitState();
+    return;
+  }
+  if (selectedDate < businessDateString()) {
+    slotsState = 'error';
+    resetTimeOptions('Выберите другую дату');
+    showBookingMessage('Нельзя записаться на прошедшую дату.', true);
+    updateSubmitState();
+    return;
+  }
 
   try {
-    const config = window.PROKOL_CONFIG;
-    const db = window.supabase.createClient(
-      config.supabaseUrl,
-      config.supabaseKey
+    const { data, error } = await withTimeout(
+      getDatabase().rpc('get_booking_slots', { p_date: selectedDate })
     );
-
-    const { data, error } = await db.rpc('get_booking_slots', {
-      p_date: selectedDate
-    });
-
+    if (requestId !== slotsRequestId || bookingDate.value !== selectedDate) return;
     if (error) throw error;
+    if (!Array.isArray(data)) throw new Error('Сервер вернул некорректный список часов.');
 
-    const slots = new Map(
-      data.map(slot => [
-        String(slot.slot_time).slice(0, 5),
-        Number(slot.booked_count)
-      ])
-    );
-
-    Array.from(bookingTime.options).forEach(option => {
-      const time = option.value;
-
-      if (!time) return;
-
-      const booked = slots.get(time) ?? 0;
-      const isFull = booked >= 2;
-
-      option.disabled = isFull;
-      option.textContent = isFull
-        ? `${time} — занято`
-        : `${time} — свободно`;
-    });
-
-    if (previousValue && slots.get(previousValue) >= 2) {
-      bookingTime.value = '';
+    const slots = new Map();
+    for (const slot of data) {
+      const time = String(slot.slot_time ?? '').slice(0, 5);
+      const count = Number(slot.booked_count);
+      if (!/^\d{2}:\d{2}$/.test(time) || !Number.isFinite(count) || count < 0) {
+        throw new Error('Некорректные данные о занятых часах.');
+      }
+      slots.set(time, count);
     }
+
+    // Для корректной проверки функция должна вернуть все интервалы,
+    // включая интервалы с нулём записей.
+    const expectedTimes = Array.from(bookingTime.options).filter(o => o.value).map(o => o.value);
+    if (expectedTimes.some(time => !slots.has(time))) {
+      throw new Error('Сервер вернул неполный список доступных часов.');
+    }
+
+    let freeCount = 0;
+    for (const option of bookingTime.options) {
+      if (!option.value) continue;
+      const full = slots.get(option.value) >= SLOT_CAPACITY;
+      option.disabled = full;
+      option.textContent = `${option.value} — ${full ? 'занято' : 'свободно'}`;
+      if (!full) freeCount++;
+    }
+    bookingTime.options[0].textContent = freeCount
+      ? 'Выберите свободное время'
+      : 'Свободного времени нет';
+    bookingTime.disabled = freeCount === 0;
+    slotsState = 'ready';
+    if (!freeCount) showBookingMessage('На выбранную дату свободных часов нет. Выберите другую дату.');
   } catch (error) {
+    if (requestId !== slotsRequestId || bookingDate.value !== selectedDate) return;
     console.error('Ошибка загрузки свободных часов:', error);
-    formMessage.textContent =
-      'Не удалось проверить свободное время. Обновите страницу или позвоните нам.';
-    formMessage.classList.add('show');
+    slotsState = 'error';
+    resetTimeOptions('Не удалось загрузить время');
+    showBookingMessage('Не удалось проверить свободные часы. Попробуйте выбрать дату ещё раз или позвоните нам.', true);
   } finally {
-    bookingTime.disabled = false;
+    if (requestId === slotsRequestId) updateSubmitState();
   }
 }
 
 bookingDate.addEventListener('change', loadAvailableSlots);
-
-// Запрещаем выбирать прошедшие даты по местному времени браузера.
-function setMinBookingDate() {
-  const now = new Date();
-  const localDate = [
-    now.getFullYear(),
-    String(now.getMonth() + 1).padStart(2, '0'),
-    String(now.getDate()).padStart(2, '0')
-  ].join('-');
-
-  bookingDate.min = localDate;
-}
-
+bookingTime.addEventListener('change', updateSubmitState);
 setMinBookingDate();
+resetTimeOptions();
+updateSubmitState();
 
 bookingForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-
-  if (!bookingForm.reportValidity()) return;
-
-  const config = window.PROKOL_CONFIG;
-
-  if (
-    !config ||
-    !config.supabaseUrl ||
-    !config.supabaseKey ||
-    !window.supabase
-  ) {
-    formMessage.textContent =
-      'Не удалось подключить базу. Проверьте config.js и подключение к интернету.';
-    formMessage.classList.add('show');
+  if (submitting) return;
+  setMinBookingDate();
+  if (slotsState !== 'ready' || !bookingTime.value || bookingTime.selectedOptions[0]?.disabled) {
+    showBookingMessage('Сначала выберите дату и дождитесь загрузки свободного времени.', true);
     return;
   }
+  if (!bookingForm.reportValidity()) return;
 
-  const db = window.supabase.createClient(
-    config.supabaseUrl,
-    config.supabaseKey
-  );
-
-  const button = bookingForm.querySelector('button[type="submit"]');
-  const originalButtonText = button.innerHTML;
-
-  button.disabled = true;
-  button.textContent = 'Отправляем заявку…';
-  formMessage.classList.add('show');
-  formMessage.textContent = 'Проверяем данные и отправляем заявку…';
-
-  const data = Object.fromEntries(
-    new FormData(bookingForm).entries()
-  );
+  const data = Object.fromEntries(new FormData(bookingForm).entries());
+  submitting = true;
+  submitButton.textContent = 'Отправляем заявку…';
+  updateSubmitState();
+  showBookingMessage('Отправляем заявку…');
 
   try {
-    const { data: result, error } = await db.rpc(
-      'submit_booking',
-      {
+    const { data: result, error } = await withTimeout(
+      getDatabase().rpc('submit_booking', {
         p_name: data.name.trim(),
         p_phone: data.phone.trim(),
         p_service: data.service,
@@ -474,36 +544,35 @@ bookingForm.addEventListener('submit', async (event) => {
         p_requested_date: data.requestedDate,
         p_requested_time: data.requestedTime,
         p_comment: data.comment.trim() || null
-      }
+      }),
+      15000
     );
-
     if (error) throw error;
-
-    // Функция базы должна вернуть JSON с результатом.
-    if (result && result.error) {
-      throw new Error(result.error);
-    }
-
-    formMessage.textContent =
-      'Заявка отправлена! Дождитесь подтверждения времени по телефону.';
-
+    if (result && result.error) throw new Error(String(result.error));
+    showBookingMessage('Заявка отправлена! Дождитесь подтверждения времени по телефону.');
     bookingForm.reset();
+    ++slotsRequestId;
+    slotsState = 'idle';
+    resetTimeOptions();
     setMinBookingDate();
-
-    const preview = document.getElementById('requestPreview');
-    if (preview) preview.remove();
-
   } catch (error) {
     console.error('Ошибка отправки заявки:', error);
-
-    formMessage.textContent =
-      'Не удалось отправить заявку. Возможно, время занято или возникла ошибка подключения. Позвоните нам для записи.';
+    // После тайм-аута заявка могла попасть в базу. Не предлагаем
+    // немедленно повторять отправку без проверки у администратора.
+    if (/время ожидания/i.test(error.message)) {
+      showBookingMessage('Не получили подтверждение от сервера. Заявка могла сохраниться. Позвоните нам, чтобы проверить запись, прежде чем отправлять её повторно.', true);
+    } else {
+      showBookingMessage('Не удалось подтвердить запись. Возможно, время уже занято. Выберите дату заново или позвоните нам.', true);
+    }
+    ++slotsRequestId;
+    slotsState = 'error';
+    resetTimeOptions('Проверьте часы ещё раз');
   } finally {
-    button.disabled = false;
-    button.innerHTML = originalButtonText;
+    submitting = false;
+    submitButton.innerHTML = originalButtonText;
+    updateSubmitState();
   }
 });
-
   </script>
 </body>
 </html>
